@@ -1,8 +1,9 @@
 # XRechnung-Konverter
 
-Kostenloses Lead-Magnet-Tool: Formulardaten (oder eine hochgeladene PDF-Rechnung
-zum Vorausfüllen) werden in eine standardkonforme **XRechnung im UBL-Format**
-(EN 16931 / XRechnung 3.x) umgewandelt und als XML-Datei heruntergeladen.
+Kostenloses Lead-Magnet-Tool: Formulardaten (oder eine hochgeladene Rechnung als
+PDF, Word/DOCX oder TXT zum Vorausfüllen) werden in eine standardkonforme
+**XRechnung im UBL-Format** (EN 16931 / XRechnung 3.x) umgewandelt und als
+XML-Datei heruntergeladen.
 
 ## Lokales Setup
 
@@ -29,16 +30,16 @@ XML-Struktur (Rechnungsnummer, Datum, Währung, Parteien, Positionen, Summen).
 ## ENV-Variablen
 
 Siehe `.env.example`. Für die Warteliste (E-Mail-Erfassung für das kommende
-Abo-Produkt) einen der beiden Anbieter konfigurieren:
+Abo-Produkt) wird [Resend](https://resend.com) über das globale Contacts-API
+genutzt (keine separate Audience-ID nötig):
 
 | Variable | Beschreibung |
 |---|---|
-| `EMAIL_PROVIDER` | `resend` oder `buttondown` |
-| `RESEND_API_KEY` / `RESEND_AUDIENCE_ID` | bei Wahl von Resend |
-| `BUTTONDOWN_API_KEY` | bei Wahl von Buttondown |
+| `RESEND_API_KEY` | API-Key aus dem Resend-Dashboard (`re_...`) |
 
-Ohne Konfiguration schreibt die App lokal in `.waitlist-local.txt` (nicht für
-Produktivbetrieb geeignet, da das Dateisystem auf Vercel flüchtig ist).
+Ohne gesetzten `RESEND_API_KEY` gibt `/api/subscribe` einen 503-Fehler zurück,
+statt hart abzustürzen — die restliche App (XRechnung-Erzeugung) funktioniert
+davon unabhängig.
 
 ## Deploy auf Vercel
 
@@ -55,11 +56,12 @@ einer einzelnen Server-Anfrage verarbeitet und nirgends gespeichert.
 - `lib/xrechnung/types.ts` — Datenmodell der Rechnung (Business Terms nach EN 16931 kommentiert).
 - `lib/xrechnung/validate.ts` — Pflichtfeldprüfung mit verständlichen deutschen Fehlermeldungen.
 - `lib/xrechnung/generateUbl.ts` — UBL-Invoice-2-XML-Generierung.
-- `lib/pdf/extract.ts` — Heuristische Textextraktion aus PDFs (Regex, kein OCR/ML) zum Vorausfüllen.
+- `lib/document/extractFields.ts` — Heuristische Textextraktion (Regex, kein OCR/ML) zum Vorausfüllen, unabhängig vom Quellformat.
+- `lib/document/parseDocument.ts` — wandelt PDF (`pdf-parse`), DOCX (`mammoth`) oder TXT in reinen Text um.
 - `app/api/generate-xml` — validiert und erzeugt die XML-Datei (Server-seitig, keine Persistenz).
-- `app/api/extract-pdf` — nimmt eine PDF entgegen, extrahiert Text mit `pdf-parse`, gibt Vorschlagsfelder zurück.
-- `app/api/subscribe` — Waitlist-Eintragung über Resend/Buttondown.
-- `components/InvoiceTool.tsx` — Formular inkl. PDF-Upload und Download-Flow.
+- `app/api/extract-document` — nimmt eine PDF-, DOCX- oder TXT-Datei entgegen, extrahiert Text und gibt Vorschlagsfelder zurück.
+- `app/api/subscribe` — Waitlist-Eintragung über Resend (Contacts-API).
+- `components/InvoiceTool.tsx` — Formular inkl. Datei-Upload und Download-Flow.
 
 ### Ausbaustufen (nicht Teil dieses MVP)
 

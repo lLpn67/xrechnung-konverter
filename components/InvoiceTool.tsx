@@ -141,11 +141,11 @@ export function InvoiceTool() {
     try {
       const body = new FormData();
       body.append("file", file);
-      const response = await fetch("/api/extract-pdf", { method: "POST", body });
+      const response = await fetch("/api/extract-document", { method: "POST", body });
       const data = await response.json();
       if (!response.ok) {
         setPdfStatus("error");
-        setPdfMessage(data.error ?? "PDF konnte nicht gelesen werden.");
+        setPdfMessage(data.error ?? "Datei konnte nicht gelesen werden.");
         return;
       }
       const fields = data.fields ?? {};
@@ -194,18 +194,18 @@ export function InvoiceTool() {
       ];
       if (fields.seller || fields.buyer) {
         hints.push(
-          "Verkäufer/Käufer wurden anhand der Position im Dokument geraten – bitte Zuordnung und USt-IdNr. prüfen bzw. ergänzen (in der PDF nicht immer enthalten).",
+          "Verkäufer/Käufer wurden anhand der Position im Dokument geraten – bitte Zuordnung und USt-IdNr. prüfen bzw. ergänzen (im Dokument nicht immer enthalten).",
         );
       }
       if (fields.totalAmount) {
         hints.push(
-          `Erkannter Gesamtbetrag laut PDF: ${fields.totalAmount} € – bitte mit der Summe der Positionen unten vergleichen.`,
+          `Erkannter Gesamtbetrag im Dokument: ${fields.totalAmount} € – bitte mit der Summe der Positionen unten vergleichen.`,
         );
       }
       setPdfMessage(hints.join(" "));
     } catch {
       setPdfStatus("error");
-      setPdfMessage("PDF konnte nicht gelesen werden. Bitte fülle das Formular manuell aus.");
+      setPdfMessage("Datei konnte nicht gelesen werden. Bitte fülle das Formular manuell aus.");
     } finally {
       event.target.value = "";
     }
@@ -283,16 +283,16 @@ export function InvoiceTool() {
 
         <div className="mt-6 rounded-lg border border-dashed border-accent/50 bg-white p-5">
           <label className={labelClass()}>
-            PDF-Rechnung hochladen (optional, füllt Felder automatisch vor)
+            Rechnung hochladen (PDF, Word/DOCX oder TXT – optional, füllt Felder automatisch vor)
           </label>
           <input
             type="file"
-            accept="application/pdf"
+            accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
             onChange={handlePdfUpload}
             className="mt-2 block w-full text-sm text-ink/70 file:mr-4 file:rounded-md file:border-0 file:bg-ink file:px-4 file:py-2 file:text-white file:hover:bg-ink/80"
           />
           {pdfStatus === "loading" && (
-            <p className="mt-2 text-sm text-ink/60">PDF wird gelesen…</p>
+            <p className="mt-2 text-sm text-ink/60">Datei wird gelesen…</p>
           )}
           {pdfMessage && (
             <p

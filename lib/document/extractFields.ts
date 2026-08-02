@@ -1,7 +1,8 @@
 // Best-effort-Extraktion von Standardfeldern aus dem Text einer hochgeladenen
-// PDF-Rechnung. Dient NUR dazu, das Formular vorauszufüllen – niemals als
-// alleinige Quelle. Die Ergebnisse müssen vom Nutzer geprüft werden.
-// Kein OCR/ML: rein regelbasierte Heuristik auf extrahiertem PDF-Text.
+// Rechnung (PDF, DOCX oder TXT). Dient NUR dazu, das Formular vorauszufüllen
+// – niemals als alleinige Quelle. Die Ergebnisse müssen vom Nutzer geprüft
+// werden. Kein OCR/ML: rein regelbasierte Heuristik auf extrahiertem Text,
+// unabhängig davon, wie der Text aus dem jeweiligen Dateiformat gewonnen wurde.
 
 export interface ExtractedParty {
   name?: string;
